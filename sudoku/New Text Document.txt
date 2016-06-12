@@ -1,0 +1,30 @@
+Good!  Here are some things to fix:
+
+-- Please comment your code!  (Not extensively; just write a short
+   comment what the top-level functions do.)
+
+== elemInSudoku seems too complicated.  (concat?)
+
+-- In isSolved and isSudoku: Don't use guards when you define a boolean.
+   E.g., a guard of the form
+      foo x y z | apa = False
+                | otherwise = bepa
+   is the same as
+      foo x y z = not apa && bepa
+
+-- In printSudoku: It is weird to me that you first destroy the 9x9
+   structure using elemInSudoku and then built it up again with
+   splitEvery...  Why not leave it from the beginning?
+
+== In convertSudList: why not use map or list-comprehension?
+
+-- readSudoku is too complicated.  Again, you don't make use of the
+   already given structure.  The '\n' give you the correct structure!
+   (Try with lines) You should use standard list functions (like map)
+   instead of recursion.  This will make it much clearer...  (splitOnN
+   is really just filter (\= '\n') ...)
+
+** I advise you to not use TABs in Haskell.  Haskell is very picky
+   about white-space and counts tabs as 8 characters eventhough your
+   editor might show it differently.  This can result in hard to find
+   errors...

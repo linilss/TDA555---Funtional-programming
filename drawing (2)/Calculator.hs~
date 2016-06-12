@@ -1,0 +1,58 @@
+import Control.Monad (when)
+
+import Haste hiding (eval)
+import Haste.Graphics.Canvas
+
+import Expr
+import Pages
+
+
+
+points :: Expr -> Double -> (Int,Int) -> [Point]
+points exp sca (w,h) = [((fromIntegral x), (realToPix(eval exp(pixToReal (fromIntegral x))))) | x <- [0..w]]
+   where 
+     pixToReal :: Double -> Double
+     pixToReal x = sca*((x)-((fromIntegral w)/2))
+
+     realToPix :: Double -> Double
+     realToPix x = ((-x/sca) + ((fromIntegral w)/2))
+    
+
+
+canWidth, canHeight :: Num a => a
+canWidth  = 300
+canHeight = 300
+
+readAndDraw :: Elem -> Canvas -> IO ()
+readAndDraw elm can = do 
+                s <- getProp elm "value"
+                case readExpr s of
+                 Just x  -> render can $ stroke $ path $ points x 0.04 (canWidth,canHeight)
+                 Nothing -> alert "Please type a valid expression"
+
+main = do
+    -- Elements
+    canvas  <- mkCanvas canWidth canHeight   -- The drawing area
+    fx      <- mkHTML "<i>f</i>(<i>x</i>)="  -- The text "f(x)="
+    input   <- mkInput 20 "x"                -- The formula input
+    draw    <- mkButton "Draw graph"         -- The draw button
+      -- The markup "<i>...</i>" means that the text inside should be rendered
+      -- in italics.
+
+    -- Layout
+    formula <- mkDiv
+    row formula [fx,input]
+    column documentBody [canvas,formula,draw]
+
+    -- Styling
+    setStyle documentBody "backgroundColor" "lightblue"
+    setStyle documentBody "textAlign" "center"
+    setStyle input "fontSize" "14pt"
+    focus input
+    select input
+
+    -- Interaction
+    Just can <- getCanvas canvas
+    onEvent draw  OnClick $ \_ _  -> readAndDraw input can
+    onEvent input OnKeyUp $ \code -> when (code==13) $ readAndDraw input can
+      -- "Enter" key has code 13
